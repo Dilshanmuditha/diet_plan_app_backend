@@ -42,3 +42,10 @@ class User:
         cursor.execute("DELETE FROM users WHERE id = %s", (user_id,))
         mysql.connection.commit()
         cursor.close()
+    
+    @staticmethod
+    def add_user_details(user_id, dob, mobile, address, sex, bmi):
+        cursor = mysql.connection.cursor()
+        cursor.execute("UPDATE users SET dob = %s,mobile = %s, address = %s, sex = %s, bmi = %s WHERE id = %s", (dob, mobile, address, sex, bmi, user_id))
+        mysql.connection.commit()
+        cursor.close()

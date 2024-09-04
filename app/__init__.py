@@ -16,9 +16,10 @@ def create_app():
     mysql.init_app(app)
     jwt.init_app(app)
 
-    from app.views import user, main
+    from app.views import user, main, bmi
 
     app.register_blueprint(user)
     app.register_blueprint(main) 
+    app.register_blueprint(bmi) 
     
     return app

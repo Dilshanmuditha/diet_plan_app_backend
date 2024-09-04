@@ -14,20 +14,22 @@ class UserController:
         if User.get_user_by_email(email):
             return jsonify({"msg": "email already exists"}), 409
 
-        User.create_user(username, password)
+        User.create_user(username,email, password)
         return jsonify({"msg": "User created successfully"}), 201
 
     @staticmethod
     def login():
         email = request.json.get('email')
         password = request.json.get('password')
-
+        
         user = User.get_user_by_email(email)
         if not user or not check_password_hash(user[3], password):
             return jsonify({"msg": "Invalid email or password"}), 401
 
         access_token = create_access_token(identity=email)
-        return jsonify(access_token=access_token), 200
+        data = {"first_name": user[1], "last_name": user[2]}
+        return jsonify({"msg": "Login successful", "data": data, "token": access_token}), 200
+
 
     @staticmethod
     @jwt_required()
@@ -71,3 +73,21 @@ class UserController:
 
         User.delete_user(user[0])
         return jsonify({"msg": "User deleted successfully"}), 200
+    
+    @staticmethod
+    @jwt_required()
+    def add_user_details():
+        current_user = get_jwt_identity()
+
+        user = User.get_user_by_email(current_user)
+        if not user:
+            return jsonify({"msg": "User not found"}), 404
+
+        dob = request.json.get('dob')
+        mobile = request.json.get('mobile')
+        address = request.json.get('address')
+        sex = request.json.get('sex')
+        bmi = request.json.get('bmi')
+
+        User.add_user_details(user[0], dob, mobile, address, sex, bmi)
+        return jsonify({"msg": "User details updated successfully"}), 201
