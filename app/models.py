@@ -49,3 +49,10 @@ class User:
         cursor.execute("UPDATE users SET dob = %s,mobile = %s, address = %s, sex = %s, bmi = %s WHERE id = %s", (dob, mobile, address, sex, bmi, user_id))
         mysql.connection.commit()
         cursor.close()
+
+    @staticmethod
+    def add_user_bmi(user_id, bmi):
+        cursor = mysql.connection.cursor()
+        cursor.execute("UPDATE users SET bmi = %s WHERE id = %s", (bmi, user_id))
+        mysql.connection.commit()
+        cursor.close()

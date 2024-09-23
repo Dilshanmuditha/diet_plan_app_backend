@@ -1,12 +1,12 @@
 from flask import Blueprint,render_template, Response, request, jsonify
 from app.controllers.user_controller import UserController
 from app.controllers.bmi_controller import BMICalculator
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt
 import cv2
 import numpy as np
 from io import BytesIO
 from PIL import Image
-
+BLACKLIST = set()
 user = Blueprint('user', __name__)
 bmi = Blueprint('bmi', __name__)
 main = Blueprint('main', __name__)
@@ -22,6 +22,13 @@ def register():
 @user.route('/login', methods=['POST'])
 def login():
     return UserController.login()
+
+@user.route('/logout', methods=['POST'])
+@jwt_required()
+def logout():
+    jti = get_jwt()["jti"]  # JWT ID, a unique identifier for the token
+    BLACKLIST.add(jti)
+    return jsonify({"msg": "Successfully logged out"}), 200
 
 @user.route('/user', methods=['GET'])
 @jwt_required()
@@ -51,6 +58,10 @@ def hello():
 def bmi_calculate():
     return BMICalculator.bmiCalculate()
 
+@bmi.route("/bmi-save", methods=['POST'])
+def bmi_save():
+    return BMICalculator.bmiSave()
+ 
 @bmi.route('/estimate_height', methods=['POST'])
 def estimate_height():
     if 'image' not in request.files:

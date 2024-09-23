@@ -27,7 +27,17 @@ class UserController:
             return jsonify({"msg": "Invalid email or password"}), 401
 
         access_token = create_access_token(identity=email)
-        data = {"first_name": user[1], "last_name": user[2]}
+        data = {
+            "id": user[0],
+            "name": user[1],
+            "email": user[2],
+            "dob": user[4],
+            "mobile": user[5],
+            "address": user[6],
+            "sex": user[7],
+            "bmi": user[8],
+            "created_at": user[9]
+            }
         return jsonify({"msg": "Login successful", "data": data, "token": access_token}), 200
 
 
@@ -44,7 +54,12 @@ class UserController:
             "id": user[0],
             "user": user[1],
             "email": user[2],
-            "created_at": user[3]
+            "dob": user[4],
+            "mobile": user[5],
+            "address": user[6],
+            "sex": user[7],
+            "bmi": user[8],
+            "created_at": user[9]
         }), 200
 
     @staticmethod

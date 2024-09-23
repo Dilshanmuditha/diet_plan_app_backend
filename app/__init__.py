@@ -4,6 +4,7 @@ from flask_jwt_extended import JWTManager
 
 mysql = MySQL()
 jwt = JWTManager()
+BLACKLIST = set()
 
 def create_app():
     app = Flask(__name__)
@@ -23,3 +24,8 @@ def create_app():
     app.register_blueprint(bmi) 
     
     return app
+
+@jwt.token_in_blocklist_loader
+def check_if_token_in_blacklist(jwt_header, jwt_payload):
+    jti = jwt_payload["jti"]
+    return jti in BLACKLIST
