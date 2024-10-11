@@ -29,4 +29,16 @@ class BMICalculator:
         bmi = request.json.get('bmi')
 
         User.add_user_bmi(user[0], bmi)
-        return jsonify({"msg": "User bmi details updated successfully"}), 201
+        updated_user = User.get_user_by_email(current_user)
+        data = {
+            "id": updated_user[0],
+            "name": updated_user[1],
+            "email": updated_user[2],
+            "dob": updated_user[4],
+            "mobile": updated_user[5],
+            "address": updated_user[6],
+            "sex": updated_user[7],
+            "bmi": updated_user[8],
+            "created_at": updated_user[9]
+            }
+        return jsonify({"msg": "User bmi details updated successfully","data": data}), 201
