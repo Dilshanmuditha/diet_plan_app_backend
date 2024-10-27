@@ -56,3 +56,4 @@ class User:
         cursor.execute("UPDATE users SET bmi = %s WHERE id = %s", (bmi, user_id))
         mysql.connection.commit()
         cursor.close()
+

@@ -11,7 +11,7 @@ def create_app():
     app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key'
     app.config['MYSQL_HOST'] = 'localhost'
     app.config['MYSQL_USER'] = 'root'
-    app.config['MYSQL_PASSWORD'] = ''
+    app.config['MYSQL_PASSWORD'] = '1234'
     app.config['MYSQL_DB'] = 'fitnessapp'
 
     mysql.init_app(app)

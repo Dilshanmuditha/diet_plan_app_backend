@@ -6,10 +6,16 @@ import cv2
 import numpy as np
 from io import BytesIO
 from PIL import Image
+import pickle
+import pandas as pd
+
 BLACKLIST = set()
 user = Blueprint('user', __name__)
 bmi = Blueprint('bmi', __name__)
 main = Blueprint('main', __name__)
+
+with open('model/model.pickle', 'rb') as f:
+    model = pickle.load(f)
 
 @main.route('/')
 def home():
@@ -98,3 +104,53 @@ def estimate_height():
     # Convert pixel height to actual height (requires calibration)
     height_meters = height_pixels / 100.0
     return jsonify({"height_meters": round(height_meters, 2)})
+
+@bmi.route('/predict', methods=['POST'])
+def predict():
+    # Get JSON data from the request
+    data = request.get_json()
+
+    # Create a DataFrame from the input data
+    input_data = pd.DataFrame({
+        'Weight': [data.get('Weight')],
+        'Height': [data.get('Height')],
+        'BMI': [data.get('BMI')],
+        'Body Fat Percentage': [data.get('Body Fat Percentage')],
+        'Age': [data.get('Age')],
+        'activity_level': [data.get('activity_level')],
+        'BFPcase_Acceptable': [data.get('BFPcase_Acceptable')],
+        'BFPcase_Athletes': [data.get('BFPcase_Athletes')],
+        'BFPcase_Fitness': [data.get('BFPcase_Fitness')],
+        'BFPcase_Obese': [data.get('BFPcase_Obese')],
+        'Gender_Female': [data.get('Gender_Female')],
+        'Gender_Male': [data.get('Gender_Male')],
+        'BMIcase_mild thinness': [data.get('BMIcase_mild thinness')],
+        'BMIcase_moderate thinness': [data.get('BMIcase_moderate thinness')],
+        'BMIcase_normal': [data.get('BMIcase_normal')],
+        'BMIcase_obese': [data.get('BMIcase_obese')],
+        'BMIcase_over weight': [data.get('BMIcase_over weight')],
+        'BMIcase_sever thinness': [data.get('BMIcase_sever thinness')],
+        'BMIcase_severe obese': [data.get('BMIcase_severe obese')]
+    })
+
+    # Make predictions
+    predictions = model.predict(input_data)
+
+    # Mapping of prediction codes to workout messages
+    workout_messages = {
+        1: "Cardio 4x per week, Strength training 3x per week",
+        2: "Cardio 5x per week, Strength training 2x per week",
+        3: "General fitness plan 3x per week",
+        4: "Intense cardio 3x per week, Strength training 3x per week",
+        5: "Light cardio 4x per week, Strength training 2x per week",
+        6: "Moderate cardio 3x per week, Strength training 2x per week"
+    }
+
+    # Map predictions to messages
+    prediction_messages = [workout_messages.get(pred, "No recommendation") for pred in predictions]
+
+    # Send the predictions and messages back as a JSON response
+    return jsonify({
+        'predictions': predictions.tolist(),
+        'messages': prediction_messages
+    })
